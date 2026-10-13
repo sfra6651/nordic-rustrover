@@ -94,4 +94,4 @@ python3 build.py                   # writes resources/ and dist/*.jar
   [IntelliJ Platform](https://github.com/JetBrains/intellij-community) (Apache-2.0),
   with its colours replaced.
 
-See [LICENSE](LICENSE).
+MIT licensed: see [LICENSE](LICENSE) and [NOTICE](NOTICE).

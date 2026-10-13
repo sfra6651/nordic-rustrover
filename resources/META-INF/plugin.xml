@@ -1,0 +1,21 @@
+<idea-plugin>
+  <id>io.github.sfra6651.nordic</id>
+  <name>Nordic</name>
+  <version>1.0.0</version>
+  <vendor url="https://github.com/sfra6651/nordic-rustrover">sfra6651</vendor>
+  <description><![CDATA[
+    A port of <a href="https://github.com/AlexvZyl/nordic.nvim">nordic.nvim</a> (default options)
+    with Rust highlighting mapped from what Neovim actually renders with treesitter and
+    rust-analyzer semantic tokens.
+    <ul>
+      <li><b>Nordic</b> editor color scheme (Settings | Editor | Color Scheme)</li>
+      <li><b>Nordic</b> Islands UI theme (Settings | Appearance &amp; Behavior | Appearance)</li>
+    </ul>
+  ]]></description>
+  <idea-version since-build="253"/>
+  <depends>com.intellij.modules.platform</depends>
+  <extensions defaultExtensionNs="com.intellij">
+    <bundledColorScheme id="Nordic" path="/colors/Nordic.xml"/>
+    <themeProvider id="nordic-islands" path="/themes/Nordic.theme.json" targetUi="islands"/>
+  </extensions>
+</idea-plugin>

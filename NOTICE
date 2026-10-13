@@ -1,4 +1,7 @@
-Third-party noticesThe colour palette and highlight roles are derived from nordic.nvim
+Third-party notices
+===================
+
+The colour palette and highlight roles are derived from nordic.nvim
 (https://github.com/AlexvZyl/nordic.nvim), distributed under the MIT License:
 
     Copyright (c) 2023 Alexander van Zyl

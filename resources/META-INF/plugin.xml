@@ -12,6 +12,11 @@
       <li><b>Nordic</b> Islands UI theme (Settings | Appearance &amp; Behavior | Appearance)</li>
     </ul>
   ]]></description>
+  <change-notes><![CDATA[
+    <b>1.0.0</b>: first release: Nordic editor color scheme (every Rust key mapped from Neovim's
+    treesitter + rust-analyzer rendering, plus TOML, Markdown, JSON, YAML, console and diagnostics)
+    and the Nordic Islands UI theme.
+  ]]></change-notes>
   <idea-version since-build="253"/>
   <depends>com.intellij.modules.platform</depends>
   <extensions defaultExtensionNs="com.intellij">

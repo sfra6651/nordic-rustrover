@@ -533,6 +533,11 @@ PLUGIN_XML = f'''<idea-plugin>
       <li><b>Nordic</b> Islands UI theme (Settings | Appearance &amp; Behavior | Appearance)</li>
     </ul>
   ]]></description>
+  <change-notes><![CDATA[
+    <b>1.0.0</b>: first release: Nordic editor color scheme (every Rust key mapped from Neovim's
+    treesitter + rust-analyzer rendering, plus TOML, Markdown, JSON, YAML, console and diagnostics)
+    and the Nordic Islands UI theme.
+  ]]></change-notes>
   <idea-version since-build="253"/>
   <depends>com.intellij.modules.platform</depends>
   <extensions defaultExtensionNs="com.intellij">
@@ -556,7 +561,7 @@ def build():
     os.makedirs(os.path.join(HERE, 'dist'), exist_ok=True)
     out = os.path.join(HERE, 'dist', f'nordic-rustrover-{VERSION}.jar')
     with zipfile.ZipFile(out, 'w', zipfile.ZIP_DEFLATED) as z:
-        for rel in ('META-INF/plugin.xml', f'colors/{SCHEME_NAME}.xml', f'themes/{SCHEME_NAME}.theme.json'):
+        for rel in ('META-INF/plugin.xml', 'META-INF/pluginIcon.svg', f'colors/{SCHEME_NAME}.xml', f'themes/{SCHEME_NAME}.theme.json'):
             z.write(os.path.join(RES, rel), rel)
     print('wrote', out)
 

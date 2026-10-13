@@ -10,7 +10,7 @@ in Neovim** with treesitter + rust-analyzer.
 
 ## Install
 
-1. Download [`dist/nordic-rustrover-1.0.0.jar`](dist/nordic-rustrover-1.0.0.jar).
+1. Download `nordic-rustrover-1.0.0.jar` from the [latest release](https://github.com/sfra6651/nordic-rustrover/releases/latest).
 2. Settings → Plugins → ⚙ → **Install Plugin from Disk…** → select the jar, then restart.
 3. Settings → Editor → Color Scheme → **Nordic**
    (or Appearance → Theme → **Nordic** for the UI theme too; it selects the scheme for you).

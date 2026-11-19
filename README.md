@@ -1,8 +1,8 @@
-# Nordic for RustRover
+# Nordic for RustRover and CLion
 
-A RustRover port of [nordic.nvim](https://github.com/AlexvZyl/nordic.nvim) (default options:
-`reduced_blue`, italic comments, no bold keywords), built so that **Rust looks the way it does
-in Neovim** with treesitter + rust-analyzer.
+A RustRover and CLion port of [nordic.nvim](https://github.com/AlexvZyl/nordic.nvim) (default
+options: `reduced_blue`, italic comments, no bold keywords), built so that **Rust and C/C++ look
+the way they do in Neovim** with treesitter + rust-analyzer / clangd.
 
 - **Nordic** editor color scheme
 - **Nordic** Islands UI theme: JetBrains' *Islands Darcula* layout recoloured with the nordic
@@ -10,12 +10,13 @@ in Neovim** with treesitter + rust-analyzer.
 
 ## Install
 
-1. Download `nordic-rustrover-1.0.0.jar` from the [latest release](https://github.com/sfra6651/nordic-rustrover/releases/latest).
+1. Download `nordic-rustrover-1.1.0.jar` from the [latest release](https://github.com/sfra6651/nordic-rustrover/releases/latest).
 2. Settings → Plugins → ⚙ → **Install Plugin from Disk…** → select the jar, then restart.
 3. Settings → Editor → Color Scheme → **Nordic**
    (or Appearance → Theme → **Nordic** for the UI theme too; it selects the scheme for you).
 
-Requires RustRover 2025.3+ (built and checked against 2026.2.4).
+Requires RustRover or CLion 2025.3+ (Rust keys checked against RustRover 2026.2.4, C/C++ keys
+against CLion 2025.3.3). The same jar works in both IDEs.
 
 ## How the Rust colours were derived
 
@@ -71,6 +72,50 @@ italics** as in Neovim.
 
 To flip any of these, change the entry in `build.py` (e.g. `'ENUM_VARIANT': Constant`) and run
 `python3 build.py`, or edit it in Settings → Editor → Color Scheme → Rust.
+
+## C and C++ (CLion)
+
+Same method as Rust: a C++20 sample covering every CLion C/C++ colour key was rendered in Neovim
+(nordic + nvim-treesitter + clangd semantic tokens) and the resolved colour of each token recorded.
+CLion's own classes were read for the key list: CLion Nova maps every "ReSharper C++" highlighting
+onto the classic `OC.*` keys, so the one table covers both the Nova and Classic engines. All 56
+keys are set, including the Objective-C ones.
+
+| CLion key(s) | Colour | nordic source |
+|---|---|---|
+| functions, methods, calls | `#88C0D0` blue2 | Function |
+| class, struct, enum, union, typedef / `using`, concept | `#EBCB8B` yellow | Type |
+| template parameters (type and non-type), deduction guide | `#EBCB8B` yellow | `@lsp.type.typeParameter` / `class` |
+| `int` `void` `bool` `auto` | `#EBCB8B` yellow | `@type.builtin` |
+| keywords incl. control flow | `#D08770` orange | Keyword |
+| namespace | `#E7C173` yellow.dim | `@lsp.type.namespace` |
+| field, enumerator | `#8FBCBB` cyan | `@lsp.type.property` / `enumMember` |
+| macro name, constant, number | `#BE9DB8` magenta | `@lsp.type.macro` / `@constant` |
+| `#include` `#define` `#if`, global variables | `#BF616A` red | `@keyword.directive` / `globalScope` → Macro |
+| `this` | `#5E81AC` blue0 | `@variable.builtin` |
+| parameters | fg, *italic* | `@lsp.type.parameter` |
+| locals, macro parameters, operators (incl. overloaded), brackets | `#C0C8D8` fg | Variable / Operator |
+| string, char, header path, `%d` format tokens | `#A3BE8C` green | String |
+| escapes | `#BE9DB8` magenta | `@string.escape` |
+| `,` `;` `.` | `#60728A` gray5, *italic* | Delimiter |
+| comments incl. Doxygen and its tags | `#4C566A` gray4, *italic* | Comment |
+| inactive `#if` branches | gray4, *italic* | `@lsp.type.comment` |
+
+Known differences, where CLion has one key and Neovim two colours:
+
+| What | Neovim | CLion | Why this choice |
+|---|---|---|---|
+| Global variables | external linkage red; `static` / anonymous-namespace fg | all red | what clangd reports for a plain global |
+| Constants | `ALL_CAPS` magenta; lower-case `const` fg | all magenta | matches Rust constants |
+| `throw` | red | orange | shares a key with `return` / `break` / `continue` |
+| `true` `false` `nullptr` | magenta | orange | CLion treats them as keywords |
+| Dependent names (`T::zero()`, `T::value_type`) | blue / yellow | fg | one key for both |
+
+CMake files are covered too (commands blue, `if`/`foreach` orange, argument keywords magenta,
+predefined `CMAKE_*` variables blue0). Those were mapped by nordic role, not measured in Neovim.
+
+To change any of these, edit the `CPP` / `CMAKE` tables in `build.py`, or
+Settings → Editor → Color Scheme → C/C++.
 
 ## Optional: match a default Neovim setup even more closely
 

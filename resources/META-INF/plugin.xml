@@ -1,18 +1,20 @@
 <idea-plugin>
   <id>io.github.sfra6651.nordic</id>
   <name>Nordic</name>
-  <version>1.0.0</version>
+  <version>1.1.0</version>
   <vendor url="https://github.com/sfra6651/nordic-rustrover">sfra6651</vendor>
   <description><![CDATA[
     A port of <a href="https://github.com/AlexvZyl/nordic.nvim">nordic.nvim</a> (default options)
-    with Rust highlighting mapped from what Neovim actually renders with treesitter and
-    rust-analyzer semantic tokens.
+    for RustRover and CLion, with Rust and C/C++ highlighting mapped from what Neovim actually
+    renders with treesitter and rust-analyzer / clangd semantic tokens.
     <ul>
       <li><b>Nordic</b> editor color scheme (Settings | Editor | Color Scheme)</li>
       <li><b>Nordic</b> Islands UI theme (Settings | Appearance &amp; Behavior | Appearance)</li>
     </ul>
   ]]></description>
   <change-notes><![CDATA[
+    <b>1.1.0</b>: CLion support: every C/C++ key (CLion Nova and Classic) mapped from Neovim's
+    treesitter + clangd rendering, plus CMake.<br>
     <b>1.0.0</b>: first release: Nordic editor color scheme (every Rust key mapped from Neovim's
     treesitter + rust-analyzer rendering, plus TOML, Markdown, JSON, YAML, console and diagnostics)
     and the Nordic Islands UI theme.

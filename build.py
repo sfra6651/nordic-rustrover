@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Build the Nordic RustRover plugin (editor color scheme + Islands UI theme).
+"""Build the Nordic plugin for RustRover and CLion (editor color scheme + Islands UI theme).
 
 The palette and highlight roles are taken from AlexvZyl/nordic.nvim with its default
 options (reduced_blue = true, italic_comments = true, bold_keywords = false), and every
 Rust mapping below was checked against what Neovim actually renders for the same code
 (treesitter + rust-analyzer semantic tokens), not just against nordic's group table.
+The C/C++ mappings were checked the same way against treesitter + clangd semantic tokens.
 
     python3 build.py            # writes resources/ and dist/nordic-rustrover-<version>.jar
 """
@@ -15,7 +16,7 @@ import sys
 import zipfile
 from xml.sax.saxutils import escape
 
-VERSION = '1.0.0'
+VERSION = '1.1.0'
 SCHEME_NAME = 'Nordic'
 HERE = os.path.dirname(os.path.abspath(__file__))
 RES = os.path.join(HERE, 'resources')
@@ -186,6 +187,105 @@ RUST = {
     'INLINE_ERROR_DESCRIPTION': A(P['error'], P['gray1'], font=BOLD),
     'INLINE_WARNING_DESCRIPTION': A(P['warn'], P['gray1']),
     'INLINE_EXPLANATION': A(P['info'], P['gray1']),
+}
+
+# --------------------------------------------------------------------------------------
+# C / C++ (OC.*): one entry for every key in CLion 2025.3's OCHighlightingKeys. Both engines
+# use these keys: CLion Nova maps each "ReSharper C++ ..." highlighting onto one of them
+# (RadTextAttributesKeyProcessor), so a single table covers Nova and Classic.
+# Comments give the Neovim source of each colour (treesitter cpp + clangd semantic tokens).
+# --------------------------------------------------------------------------------------
+CPP = {
+    # keywords: @keyword.* -> Keyword. `throw` (@keyword.exception) is red in nvim; CLion
+    # groups it with return/break/continue/goto, which are all orange.
+    'OC.KEYWORD': Keyword,
+    'OC.CONTROL_FLOW_KEYWORD': Keyword,              # if / else / for / while / switch / case
+    'OC.CONTROL_TRANSFER_KEYWORD': Keyword,          # return / break / continue / goto
+    'OC.BUILTIN_TYPE_KEYWORD': Type,                 # int / void / bool / auto -> @type.builtin
+    'OC.SELFSUPERTHIS': Builtin,                     # this -> @variable.builtin
+    # preprocessor: #include / #define / #if -> @keyword.import / @keyword.directive (red)
+    'OC.DIRECTIVE': Macro,
+    'OC.HEADER_PATH': String,                        # <vector> / "foo.h" -> @string
+    'OC.MACRONAME': Constant,                        # @lsp.type.macro -> @constant.macro
+    'OC.MACRO_PARAMETER': Text,                      # fg, not italic (no semantic token)
+    'OC.CONDITIONALLY_NOT_COMPILED_V2': Comment,     # inactive #if branch -> @lsp.type.comment
+    # types
+    'OC.STRUCT_LIKE': Type,                          # class / struct / enum / union names
+    'OC.TYPEDEF': Type,                              # typedef + using aliases
+    'OC.TEMPLATE_TYPE': Type,                        # @lsp.type.typeParameter
+    'OC.TEMPLATE_VALUE': Type,                       # non-type `int N` is a typeParameter too
+    'OC.GENERIC_PARAMETER': Type,
+    'OC.CONCEPT': Type,                              # @lsp.type.concept has no colour: @type wins
+    'OC.DEDUCTION_GUIDE': Type,                      # `Buffer(T) -> Buffer<T>`: @lsp.type.class
+    'OC.NAMESPACE_LIKE': Namespace,                  # @lsp.type.namespace
+    'OC.CLASS_REFERENCE': Type,                      # Objective-C class
+    'OC.PROTOCOL_REFERENCE': Keyword,                # Objective-C protocol ~ interface -> Keyword
+    # variables
+    'OC.LOCAL_VARIABLE': Text,
+    'OC.PARAMETER': Parameter,                       # @lsp.type.parameter (italic)
+    # External-linkage globals are red (@lsp.typemod.variable.globalScope -> Macro); `static`
+    # and anonymous-namespace ones are fg. CLion has one key for both.
+    'OC.GLOBAL_VARIABLE': Macro,
+    'OC.EXTERN_VARIABLE': Macro,
+    'OC.CONSTANT': Constant,                         # ALL_CAPS const / constexpr -> @constant
+    'OC.ENUM_CONST': Field,                          # @lsp.type.enumMember (cyan, as in Rust)
+    'OC.STRUCT_FIELD': Field,                        # @lsp.type.property / @variable.member
+    'OC.IVAR': Field,                                # Objective-C instance variable
+    'OC.PROPERTY': Field,                            # Objective-C property
+    'OC.PROPERTY_ATTRIBUTE': Keyword,                # Objective-C (nonatomic, strong)
+    'OC.LABEL': Keyword,                             # @label -> Keyword
+    # functions
+    'OC.FUNCTION_DECLARATION': Function,
+    'OC.FUNCTION': Function,                         # calls
+    'OC.METHOD_DECLARATION': Function,               # Objective-C
+    'OC.MESSAGE_ARGUMENT': Function,                 # Objective-C
+    'OC.OVERLOADED_OPERATOR': Text,                  # @lsp.type.operator -> fg
+    # T::zero() is blue and T::value_type yellow in nvim; CLion has one key for dependent names.
+    'OC.DEPENDENT_CODE': Text,
+    # literals
+    'OC.STRING': String,                             # also char literals (@character is green)
+    'OC.NUMBER': Constant,
+    'OC.VALID_STRING_ESCAPE': A(P['magenta_bright']),   # @string.escape
+    'OC.INVALID_STRING_ESCAPE': A(P['error']),
+    'OC.FORMAT_TOKEN': String,                       # %d / %s are plain string-green in nvim
+    # comments: no doxygen parser in nvim-treesitter's cpp queries, so tags are plain Comment
+    'OC.LINE_COMMENT': Comment,
+    'OC.BLOCK_COMMENT': Comment,
+    'Doxygen Comment': Comment,
+    'Doxygen Tag': Comment,
+    'Doxygen Parameter': Comment,
+    # punctuation: `, ; .` and `::` are @punctuation.delimiter, operators are fg
+    'OC.OPERATION_SIGN': Text,
+    'OC.PARENTHS': Text,
+    'OC.BRACKETS': Text,
+    'OC.BRACES': Text,
+    'OC.STD_INITIALIZER_LIST': Text,                 # CLion's default makes these braces bold
+    'OC.COMMA': Delimiter,
+    'OC.SEMICOLON': Delimiter,
+    'OC.DOT': Delimiter,
+    'OC.BADCHARACTER': A(effect=WAVE, effect_color=P['error']),
+}
+
+# --------------------------------------------------------------------------------------
+# CMake (com.jetbrains.cmake.*): every key in CLion's CMakeHighlightingKeys, mapped by
+# nordic role (not measured against Neovim).
+# --------------------------------------------------------------------------------------
+CMAKE = {
+    'COMMAND': Function,                 # add_executable(...), message(...)
+    'KEYWORD': Keyword,                  # if / endif / foreach / function
+    'ARGUMENT_KEYWORD': Constant,        # PRIVATE, VERSION, PROPERTIES
+    'STRING_TEXT': String,
+    'NUMERIC_TEXT': Constant,
+    'ARGUMENT_LITERAL': Text,
+    'ARGUMENT_LITERAL_CMAKE': Builtin,   # CMAKE_CXX_STANDARD and other predefined variables
+    'ARGUMENT_PROPERTY': Field,
+    'ARGUMENT_PROPERTY_CMAKE': Field,
+    'VALID_STRING_ESCAPE': A(P['magenta_bright']),
+    'INVALID_STRING_ESCAPE': A(P['error']),
+    'LINE_COMMENT': Comment,
+    'PARENTHESES': Text,
+    'BRACKETS': Text,
+    'SEMICOLON': Delimiter,
 }
 
 # --------------------------------------------------------------------------------------
@@ -508,6 +608,8 @@ def scheme_xml():
     attrs.update(EDITOR)
     attrs.update({'org.rust.' + k: v for k, v in RUST.items()})
     attrs.update({'org.toml.' + k: v for k, v in TOML.items()})
+    attrs.update(CPP)
+    attrs.update({'com.jetbrains.cmake.' + k: v for k, v in CMAKE.items()})
     colors = '\n'.join(f'    <option name="{k}" value="{v}" />' for k, v in sorted(COLORS.items()))
     body = '\n'.join(attr_xml(k, attrs[k]) for k in sorted(attrs))
     return (f'<scheme name="{SCHEME_NAME}" version="142" parent_scheme="Darcula">\n'
@@ -526,14 +628,16 @@ PLUGIN_XML = f'''<idea-plugin>
   <vendor url="https://github.com/sfra6651/nordic-rustrover">sfra6651</vendor>
   <description><![CDATA[
     A port of <a href="https://github.com/AlexvZyl/nordic.nvim">nordic.nvim</a> (default options)
-    with Rust highlighting mapped from what Neovim actually renders with treesitter and
-    rust-analyzer semantic tokens.
+    for RustRover and CLion, with Rust and C/C++ highlighting mapped from what Neovim actually
+    renders with treesitter and rust-analyzer / clangd semantic tokens.
     <ul>
       <li><b>Nordic</b> editor color scheme (Settings | Editor | Color Scheme)</li>
       <li><b>Nordic</b> Islands UI theme (Settings | Appearance &amp; Behavior | Appearance)</li>
     </ul>
   ]]></description>
   <change-notes><![CDATA[
+    <b>1.1.0</b>: CLion support: every C/C++ key (CLion Nova and Classic) mapped from Neovim's
+    treesitter + clangd rendering, plus CMake.<br>
     <b>1.0.0</b>: first release: Nordic editor color scheme (every Rust key mapped from Neovim's
     treesitter + rust-analyzer rendering, plus TOML, Markdown, JSON, YAML, console and diagnostics)
     and the Nordic Islands UI theme.
